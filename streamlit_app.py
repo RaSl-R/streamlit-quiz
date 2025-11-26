@@ -106,6 +106,18 @@ def add_row_to_db(row):
             (question_id, question, answer_a, answer_b, answer_c, answer_d, answer_e, answer_f,
              formatted_suggested_answer, url, inserted_datetime, inserted_by)
             VALUES (:question_id, :question, :a, :b, :c, :d, :e, :f, :sugg, :url, NOW(), :by)
+            ON CONFLICT (question_id) DO UPDATE
+            SET question = EXCLUDED.question,
+                answer_a = EXCLUDED.answer_a,
+                answer_b = EXCLUDED.answer_b,
+                answer_c = EXCLUDED.answer_c,
+                answer_d = EXCLUDED.answer_d,
+                answer_e = EXCLUDED.answer_e,
+                answer_f = EXCLUDED.answer_f,
+                formatted_suggested_answer = EXCLUDED.formatted_suggested_answer,
+                url = EXCLUDED.url,
+                inserted_datetime = NOW(),
+                inserted_by = EXCLUDED.inserted_by
         """), {
             "question_id": row["question_id"],
             "question": row["question"],
