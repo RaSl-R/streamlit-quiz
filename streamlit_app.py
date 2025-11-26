@@ -193,7 +193,6 @@ def show_questions(current_data, user_answers):
             mark_checkbox = st.checkbox("Hard / Wrong", value=is_marked, key=f"mark_chk_{qid}")
             if mark_checkbox and not is_marked:
                 add_row_to_questions_marked(row)
-                st.success("Otázka byla přidána mezi těžké/špatné!")
             elif not mark_checkbox and is_marked:
                 remove_row_from_questions_marked(qid)
         with col3:
