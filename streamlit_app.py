@@ -208,7 +208,6 @@ elif view_option == "Těžké otázky / Chybné otázky":
     end = start + questions_per_page
     current = hard_questions.iloc[start:end]
 
-current = data.iloc[start:end]
 user_answers = load_user_answers(st.session_state.user_id)
 show_questions(current, user_answers)
 
