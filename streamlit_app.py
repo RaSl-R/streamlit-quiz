@@ -99,7 +99,7 @@ def load_user_answers(user_id):
     return {row["question_id"]: row["answer"].split(', ') for _, row in df.iterrows()}
 
 # --- Přidání otázky do seznamu těžkých/špatných ---
-def add_row_to_db(row):
+def add_row_to_questions_marked(row):
     with engine.begin() as conn:
         conn.execute(text("""
             INSERT INTO quiz.questions_marked
@@ -132,6 +132,17 @@ def add_row_to_db(row):
             "url": row["url"]
         })
     st.success("Otázka byla přidána mezi těžké/špatné!")
+
+def remove_row_from_questions_marked(question_id):
+    with engine.begin() as conn:
+        conn.execute(text("""
+            DELETE FROM quiz.questions_marked
+            WHERE user_id = :uid AND question_id = :qid
+        """), {
+            "uid": st.session_state.user_id,
+            "qid": question_id
+        })
+    st.success("Otázka byla odebrána ze seznamu těžkých/špatných!")
 
 # --- Reset všech odpovědí ---
 def reset_all_answers(user_id):
@@ -179,7 +190,24 @@ def show_questions(current_data, user_answers):
                     st.write(f"Odkaz: {row['url']}")
         with col2:
             if st.button("Hard / Wrong", key=f"flag_{qid}"):
-                add_row_to_db(row)
+                add_row_to_questions_marked(row)
+
+        with col2:
+            if st.button("Hard / Wrong", key=f"flag_{qid}"):
+                add_row_to_questions_marked(row)
+            is_marked = qid in load_hard_questions(st.session_state.user_id)["question_id"].values
+            if is_marked:
+                if st.button("Unmark Hard / Wrong", key=f"unflag_{qid}"):
+                    remove_row_from_questions_marked(qid)
+
+            is_marked = qid in load_hard_questions(st.session_state.user_id)["question_id"].values
+            mark_checkbox = st.checkbox("Hard / Wrong", value=is_marked, key=f"mark_{qid}")
+            if mark_checkbox and not is_marked:
+                add_row_to_questions_marked(row)
+                st.success("Otázka byla přidána mezi těžké/špatné!")
+            elif not mark_checkbox and is_marked:
+                remove_row_from_questions_marked(qid)
+
         with col3:
             st.link_button("🔍 Otevřít otázku", row["url"])
 
