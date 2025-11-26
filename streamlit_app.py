@@ -81,8 +81,8 @@ def save_answer_to_db(user_id, question_id, selected_answers):
     answers = ', '.join(selected_answers)
     with engine.begin() as conn:
         conn.execute(text("""
-            INSERT INTO quiz.user_answers (user_id, question_id, answer, inserted_datetime)
-            VALUES (:user_id, :question_id, :answer, NOW())
+            INSERT INTO quiz.user_answers (user_id, question_id, answer, inserted_datetime, inserted_by)
+            VALUES (:user_id, :question_id, :answer, NOW(), CURRENT_USER)
             ON CONFLICT (user_id, question_id)
             DO UPDATE SET answer = EXCLUDED.answer, inserted_datetime = NOW();
         """), {"user_id": user_id, "question_id": question_id, "answer": answers})
@@ -104,8 +104,8 @@ def add_row_to_db(row):
         conn.execute(text("""
             INSERT INTO quiz.questions_marked
             (question_id, question, answer_a, answer_b, answer_c, answer_d, answer_e, answer_f,
-             formatted_suggested_answer, url, inserted_by)
-            VALUES (:question_id, :question, :a, :b, :c, :d, :e, :f, :sugg, :url, :by)
+             formatted_suggested_answer, url, inserted_datetime, inserted_by)
+            VALUES (:question_id, :question, :a, :b, :c, :d, :e, :f, :sugg, :url, NOW(), :by)
         """), {
             "question_id": row["question_id"],
             "question": row["question"],
