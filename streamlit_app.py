@@ -65,7 +65,7 @@ def load_data():
 def load_hard_questions(user_id):
     with engine.connect() as conn:
         df = pd.read_sql(
-            text("SELECT * FROM quiz.questions_marked WHERE inserted_by = :uid"),
+            text("SELECT * FROM quiz.questions_marked WHERE user_id = :uid"),
             conn,
             params={"uid": user_id}
         )
