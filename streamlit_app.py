@@ -103,10 +103,10 @@ def add_row_to_db(row):
     with engine.begin() as conn:
         conn.execute(text("""
             INSERT INTO quiz.questions_marked
-            (question_id, question, answer_a, answer_b, answer_c, answer_d, answer_e, answer_f,
+            (user_id, question_id, question, answer_a, answer_b, answer_c, answer_d, answer_e, answer_f,
              formatted_suggested_answer, url, inserted_datetime, inserted_by)
-            VALUES (:question_id, :question, :a, :b, :c, :d, :e, :f, :sugg, :url, NOW(), :by)
-            ON CONFLICT (question_id) DO UPDATE
+            VALUES (:user_id, :question_id, :question, :a, :b, :c, :d, :e, :f, :sugg, :url, NOW(), CURRENT_USER)
+            ON CONFLICT (user_id, question_id) DO UPDATE
             SET question = EXCLUDED.question,
                 answer_a = EXCLUDED.answer_a,
                 answer_b = EXCLUDED.answer_b,
@@ -117,8 +117,9 @@ def add_row_to_db(row):
                 formatted_suggested_answer = EXCLUDED.formatted_suggested_answer,
                 url = EXCLUDED.url,
                 inserted_datetime = NOW(),
-                inserted_by = EXCLUDED.inserted_by
+                inserted_by = CURRENT_USER
         """), {
+            "user_id": st.session_state.user_id,
             "question_id": row["question_id"],
             "question": row["question"],
             "a": row["answer_a"],
@@ -128,8 +129,7 @@ def add_row_to_db(row):
             "e": row.get("answer_e", ""),
             "f": row.get("answer_f", ""),
             "sugg": row["formatted_suggested_answer"],
-            "url": row["url"],
-            "by": st.session_state.user_id
+            "url": row["url"]
         })
     st.success("Otázka byla přidána mezi těžké/špatné!")
 
