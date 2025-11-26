@@ -188,14 +188,14 @@ def show_questions(current_data, user_answers):
                     st.error("Špatně ❌")
                     st.info(f"Správná odpověď: {', '.join(correct)}")
                     st.write(f"Odkaz: {row['url']}")
-
         with col2:
+            is_marked = qid in load_hard_questions(st.session_state.user_id)["question_id"].values
             mark_checkbox = st.checkbox("Hard / Wrong", value=is_marked, key=f"mark_chk_{qid}")
             if mark_checkbox and not is_marked:
                 add_row_to_questions_marked(row)
+                st.success("Otázka byla přidána mezi těžké/špatné!")
             elif not mark_checkbox and is_marked:
                 remove_row_from_questions_marked(qid)
-
         with col3:
             st.link_button("🔍 Otevřít otázku", row["url"])
 
